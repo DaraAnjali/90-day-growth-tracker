@@ -1,6 +1,6 @@
 import React,{useEffect,useMemo,useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import {BrowserRouter,useNavigate,useLocation,Routes,Route,Navigate,Link} from 'react-router-dom';
+import {BrowserRouter,useNavigate,Routes,Route,Navigate,Link} from 'react-router-dom';
 import axios from 'axios';
 import './styles.css';
 
@@ -24,11 +24,50 @@ const dates=(()=>{
 })();
 
 const key=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-const label=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+const label=d=>d.toLocaleDateString('en-US',{
+  month:'short',
+  day:'numeric'
+});
+
+function ThemeToggle(){
+  const [dark,setDark]=useState(
+    ()=>localStorage.getItem('theme')==='dark'
+  );
+
+  useEffect(()=>{
+    document.documentElement.setAttribute(
+      'data-theme',
+      dark?'dark':'light'
+    );
+
+    localStorage.setItem(
+      'theme',
+      dark?'dark':'light'
+    );
+  },[dark]);
+
+  return(
+    <button
+      className="theme-toggle"
+      onClick={()=>setDark(!dark)}
+      title={dark?'Switch to light mode':'Switch to dark mode'}
+      type="button"
+    >
+      {dark?'☀️':'🌙'}
+    </button>
+  );
+}
 
 function Auth({mode}){
   const nav=useNavigate();
-  const [form,setForm]=useState({name:'',email:'',password:''});
+
+  const [form,setForm]=useState({
+    name:'',
+    email:'',
+    password:''
+  });
+
   const [error,setError]=useState('');
   const [loading,setLoading]=useState(false);
 
@@ -39,11 +78,16 @@ function Auth({mode}){
 
     try{
       const r=await API.post(`/auth/${mode}`,form);
+
       localStorage.setItem('token',r.data.token);
       localStorage.setItem('user',JSON.stringify(r.data.user));
+
       nav('/');
     }catch(e){
-      setError(e.response?.data?.message||'Something went wrong');
+      setError(
+        e.response?.data?.message||
+        'Something went wrong'
+      );
     }finally{
       setLoading(false);
     }
@@ -51,11 +95,21 @@ function Auth({mode}){
 
   return(
     <div className="auth">
+
       <div className="auth-card">
-        <div className="brand">90<span>DAYS</span></div>
+
+        <div className="auth-theme">
+          <ThemeToggle/>
+        </div>
+
+        <div className="brand">
+          90<span>DAYS</span>
+        </div>
 
         <h1>
-          {mode==='login'?'Welcome back':'Create your account'}
+          {mode==='login'
+            ?'Welcome back'
+            :'Create your account'}
         </h1>
 
         <p>
@@ -65,11 +119,17 @@ function Auth({mode}){
         </p>
 
         <form onSubmit={submit}>
+
           {mode==='register'&&(
             <input
               placeholder="Name"
               value={form.name}
-              onChange={e=>setForm({...form,name:e.target.value})}
+              onChange={e=>
+                setForm({
+                  ...form,
+                  name:e.target.value
+                })
+              }
               required
             />
           )}
@@ -78,7 +138,12 @@ function Auth({mode}){
             type="email"
             placeholder="Email"
             value={form.email}
-            onChange={e=>setForm({...form,email:e.target.value})}
+            onChange={e=>
+              setForm({
+                ...form,
+                email:e.target.value
+              })
+            }
             required
           />
 
@@ -86,32 +151,55 @@ function Auth({mode}){
             type="password"
             placeholder="Password"
             value={form.password}
-            onChange={e=>setForm({...form,password:e.target.value})}
+            onChange={e=>
+              setForm({
+                ...form,
+                password:e.target.value
+              })
+            }
             required
             minLength="6"
           />
 
-          {error&&<div className="error">{error}</div>}
+          {error&&(
+            <div className="error">
+              {error}
+            </div>
+          )}
 
-          <button className="primary" disabled={loading}>
+          <button
+            className="primary"
+            disabled={loading}
+          >
             {loading
               ?'Please wait...'
               :mode==='login'
                 ?'Login'
                 :'Create account'}
           </button>
+
         </form>
 
         <p className="switch">
+
           {mode==='login'
             ?<>
-              New here? <Link to="/register">Create an account</Link>
+              New here?{' '}
+              <Link to="/register">
+                Create an account
+              </Link>
             </>
             :<>
-              Already have an account? <Link to="/login">Login</Link>
+              Already have an account?{' '}
+              <Link to="/login">
+                Login
+              </Link>
             </>}
+
         </p>
+
       </div>
+
     </div>
   );
 }
@@ -124,7 +212,10 @@ function Protected(){
 
 function Dashboard(){
   const nav=useNavigate();
-  const user=JSON.parse(localStorage.getItem('user')||'{}');
+
+  const user=JSON.parse(
+    localStorage.getItem('user')||'{}'
+  );
 
   const [tasks,setTasks]=useState([]);
   const [newTask,setNewTask]=useState('');
@@ -138,34 +229,53 @@ function Dashboard(){
         localStorage.removeItem('token');
         nav('/login');
       })
-      .finally(()=>setLoading(false));
+      .finally(()=>{
+        setLoading(false);
+      });
   },[]);
 
   const completed=useMemo(
     ()=>tasks.reduce(
-      (n,t)=>n+Object.values(t.completed||{}).filter(Boolean).length,
+      (n,t)=>
+        n+
+        Object.values(
+          t.completed||{}
+        ).filter(Boolean).length,
       0
     ),
     [tasks]
   );
 
   const total=tasks.length*dates.length;
-  const pct=total?Math.round(completed/total*100):0;
+
+  const pct=total
+    ?Math.round(completed/total*100)
+    :0;
 
   const add=async e=>{
     e.preventDefault();
 
     if(!newTask.trim())return;
 
-    const r=await API.post('/tasks',{name:newTask});
+    const r=await API.post(
+      '/tasks',
+      {name:newTask}
+    );
 
-    setTasks([...tasks,r.data]);
+    setTasks([
+      ...tasks,
+      r.data
+    ]);
+
     setNewTask('');
   };
 
   const toggle=async(task,date)=>{
     const k=key(date);
-    const value=!(task.completed?.[k]||false);
+
+    const value=!(
+      task.completed?.[k]||false
+    );
 
     setSaving(true);
 
@@ -173,21 +283,24 @@ function Dashboard(){
       tasks.map(t=>
         t._id===task._id
           ?{
-            ...t,
-            completed:{
-              ...t.completed,
-              [k]:value
+              ...t,
+              completed:{
+                ...t.completed,
+                [k]:value
+              }
             }
-          }
           :t
       )
     );
 
     try{
-      await API.patch(`/tasks/${task._id}`,{
-        dateKey:k,
-        value
-      });
+      await API.patch(
+        `/tasks/${task._id}`,
+        {
+          dateKey:k,
+          value
+        }
+      );
     }finally{
       setSaving(false);
     }
@@ -196,9 +309,13 @@ function Dashboard(){
   const remove=async id=>{
     if(!confirm('Remove this task?'))return;
 
-    await API.delete(`/tasks/${id}`);
+    await API.delete(
+      `/tasks/${id}`
+    );
 
-    setTasks(tasks.filter(t=>t._id!==id));
+    setTasks(
+      tasks.filter(t=>t._id!==id)
+    );
   };
 
   const logout=()=>{
@@ -210,19 +327,36 @@ function Dashboard(){
     <div className="page">
 
       <header>
+
         <div>
+
           <div className="brand small">
             90<span>DAYS</span>
           </div>
 
-          <h1>{user.name}'s growth tracker</h1>
+          <h1>
+            {user.name}'s growth tracker
+          </h1>
 
-          <p>October 1 — December 31, 2026</p>
+          <p>
+            October 1 — December 31, 2026
+          </p>
+
         </div>
 
-        <button className="logout" onClick={logout}>
-          Logout
-        </button>
+        <div className="header-actions">
+
+          <ThemeToggle/>
+
+          <button
+            className="logout"
+            onClick={logout}
+          >
+            Logout
+          </button>
+
+        </div>
+
       </header>
 
       <section className="stats">
@@ -243,16 +377,25 @@ function Dashboard(){
         </div>
 
         <div className="progress">
-          <div style={{width:`${pct}%`}}/>
+          <div
+            style={{
+              width:`${pct}%`
+            }}
+          />
         </div>
 
       </section>
 
-      <form className="add" onSubmit={add}>
+      <form
+        className="add"
+        onSubmit={add}
+      >
 
         <input
           value={newTask}
-          onChange={e=>setNewTask(e.target.value)}
+          onChange={e=>
+            setNewTask(e.target.value)
+          }
           placeholder="Add a task..."
         />
 
@@ -271,7 +414,8 @@ function Dashboard(){
         :tasks.length===0
           ?(
             <div className="empty">
-              Add your first task to begin your 90-day journey.
+              Add your first task to begin your
+              90-day journey.
             </div>
           )
           :(
@@ -280,6 +424,7 @@ function Dashboard(){
               <table>
 
                 <thead>
+
                   <tr>
 
                     <th className="sticky task-head">
@@ -293,11 +438,13 @@ function Dashboard(){
                     ))}
 
                   </tr>
+
                 </thead>
 
                 <tbody>
 
                   {tasks.map(t=>(
+
                     <tr key={t._id}>
 
                       <td className="sticky task">
@@ -308,8 +455,11 @@ function Dashboard(){
 
                         <button
                           className="remove"
-                          onClick={()=>remove(t._id)}
+                          onClick={()=>
+                            remove(t._id)
+                          }
                           title="Remove task"
+                          type="button"
                         >
                           ×
                         </button>
@@ -317,18 +467,27 @@ function Dashboard(){
                       </td>
 
                       {dates.map(d=>(
+
                         <td key={key(d)}>
 
                           <input
                             type="checkbox"
-                            checked={!!t.completed?.[key(d)]}
-                            onChange={()=>toggle(t,d)}
+                            checked={
+                              !!t.completed?.[
+                                key(d)
+                              ]
+                            }
+                            onChange={()=>
+                              toggle(t,d)
+                            }
                           />
 
                         </td>
+
                       ))}
 
                     </tr>
+
                   ))}
 
                 </tbody>
@@ -339,9 +498,11 @@ function Dashboard(){
           )}
 
       <div className="hint">
+
         {saving
           ?'Saving…'
           :'Your checkmarks are saved to your account automatically.'}
+
       </div>
 
     </div>
@@ -376,8 +537,12 @@ function App(){
   );
 }
 
-createRoot(document.getElementById('root')).render(
+createRoot(
+  document.getElementById('root')
+).render(
+
   <BrowserRouter>
     <App/>
   </BrowserRouter>
+
 );

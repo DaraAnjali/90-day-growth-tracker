@@ -1,5 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface-2: #fafafa;
+  --text: #1e1e1c;
+  --muted: #777;
+  --border: #e2e0d9;
+  --border-light: #e9e7e1;
+  --button: #222;
+  --button-text: #fff;
+  --input-bg: #fff;
+  --progress-bg: #eee;
+  --shadow: #0000000d;
+}
+
+[data-theme="dark"] {
+  --bg: #111111;
+  --surface: #1b1b1b;
+  --surface-2: #222222;
+  --text: #f5f5f5;
+  --muted: #999999;
+  --border: #333333;
+  --border-light: #2d2d2d;
+  --button: #f5f5f5;
+  --button-text: #111111;
+  --input-bg: #1b1b1b;
+  --progress-bg: #333333;
+  --shadow: #00000040;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -7,8 +37,9 @@
 body {
   margin: 0;
   font-family: 'DM Sans', Arial, sans-serif;
-  background: #f5f4f0;
-  color: #1e1e1c;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .page {
@@ -31,7 +62,7 @@ header h1 {
 
 header p {
   margin: 0;
-  color: #777;
+  color: var(--muted);
 }
 
 .brand {
@@ -49,26 +80,56 @@ header p {
   font-size: 14px;
 }
 
+/* HEADER ACTIONS */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .logout {
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
   border-radius: 9px;
   padding: 10px 16px;
   cursor: pointer;
+  font: inherit;
 }
+
+/* THEME TOGGLE */
+
+.theme-toggle {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+  transition: 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+}
+
+/* STATS */
 
 .stats {
   display: flex;
   align-items: center;
   gap: 25px;
-  background: #fff;
-  border: 1px solid #e5e3dc;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 15px;
   padding: 16px 20px;
   margin-bottom: 18px;
 }
-
-/* STATS */
 
 .stats > div:not(.progress) {
   display: flex;
@@ -82,7 +143,7 @@ header p {
 
 .stats span {
   font-size: 12px;
-  color: #888;
+  color: var(--muted);
   margin-top: 2px;
 }
 
@@ -90,7 +151,7 @@ header p {
 
 .progress {
   height: 8px;
-  background: #eee;
+  background: var(--progress-bg);
   border-radius: 20px;
   overflow: hidden;
   flex: 1;
@@ -100,7 +161,7 @@ header p {
 .progress div {
   height: 100%;
   width: 0;
-  background: #222;
+  background: var(--text);
   border-radius: 20px;
   transition: width 0.25s ease;
 }
@@ -115,19 +176,24 @@ header p {
 
 .add input {
   width: 310px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 9px;
   padding: 12px 14px;
   font: inherit;
   outline: none;
-  background: white;
+  background: var(--input-bg);
+  color: var(--text);
+}
+
+.add input::placeholder {
+  color: var(--muted);
 }
 
 .primary {
   border: 0;
   border-radius: 9px;
-  background: #222;
-  color: white;
+  background: var(--button);
+  color: var(--button-text);
   padding: 12px 18px;
   font: inherit;
   cursor: pointer;
@@ -141,8 +207,8 @@ header p {
 
 .table-wrap {
   overflow: auto;
-  background: #fff;
-  border: 1px solid #e2e0d9;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 15px;
   max-height: 70vh;
 }
@@ -156,16 +222,16 @@ table {
 
 th,
 td {
-  border-right: 1px solid #e9e7e1;
-  border-bottom: 1px solid #e9e7e1;
+  border-right: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
   text-align: center;
   padding: 0;
 }
 
 th {
   height: 62px;
-  background: #252523;
-  color: #fff;
+  background: var(--button);
+  color: var(--button-text);
   font-size: 12px;
   font-weight: 600;
   width: 62px;
@@ -190,13 +256,15 @@ th {
   text-align: left;
   padding: 0 18px;
   z-index: 5;
+  background: var(--button);
 }
 
 .task {
   width: 240px;
   min-width: 240px;
   height: 53px;
-  background: #fff;
+  background: var(--surface);
+  color: var(--text);
   text-align: left;
   padding: 0 10px 0 18px;
   display: flex;
@@ -218,7 +286,7 @@ th {
 .remove {
   border: 0;
   background: none;
-  color: #999;
+  color: var(--muted);
   font-size: 22px;
   cursor: pointer;
   padding: 4px 7px;
@@ -237,18 +305,22 @@ td:not(.task) {
   height: 53px;
   padding: 0;
   vertical-align: middle;
+  background: var(--surface);
+  color: var(--text);
 }
 
 input[type='checkbox'] {
   width: 19px;
   height: 19px;
-  accent-color: #222;
+  accent-color: var(--text);
   cursor: pointer;
 }
 
+/* HINT / EMPTY */
+
 .hint {
   text-align: center;
-  color: #999;
+  color: var(--muted);
   font-size: 12px;
   padding: 14px;
 }
@@ -256,9 +328,9 @@ input[type='checkbox'] {
 .empty {
   text-align: center;
   padding: 60px;
-  color: #888;
-  background: #fff;
-  border: 1px dashed #ddd;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px dashed var(--border);
   border-radius: 15px;
 }
 
@@ -268,16 +340,23 @@ input[type='checkbox'] {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background: #f5f4f0;
+  background: var(--bg);
   padding: 20px;
 }
 
 .auth-card {
-  background: #fff;
+  background: var(--surface);
+  color: var(--text);
   width: min(420px, 100%);
   padding: 38px;
   border-radius: 20px;
-  box-shadow: 0 10px 40px #0000000d;
+  box-shadow: 0 10px 40px var(--shadow);
+}
+
+.auth-theme {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 5px;
 }
 
 .auth-card h1 {
@@ -286,7 +365,7 @@ input[type='checkbox'] {
 }
 
 .auth-card > p {
-  color: #777;
+  color: var(--muted);
   margin: 0 0 24px;
 }
 
@@ -298,14 +377,20 @@ input[type='checkbox'] {
 
 .auth-card input {
   padding: 13px 14px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 9px;
   font: inherit;
   outline: none;
+  background: var(--input-bg);
+  color: var(--text);
+}
+
+.auth-card input::placeholder {
+  color: var(--muted);
 }
 
 .auth-card input:focus {
-  border-color: #222;
+  border-color: var(--text);
 }
 
 .error {
@@ -316,6 +401,11 @@ input[type='checkbox'] {
   font-size: 13px;
 }
 
+[data-theme="dark"] .error {
+  background: #3a2020;
+  color: #ffaaaa;
+}
+
 .switch {
   text-align: center !important;
   font-size: 13px;
@@ -323,7 +413,7 @@ input[type='checkbox'] {
 }
 
 .switch a {
-  color: #222;
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -357,6 +447,16 @@ input[type='checkbox'] {
 
   .brand {
     font-size: 17px;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .theme-toggle {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
   }
 
   .logout {
@@ -479,5 +579,9 @@ input[type='checkbox'] {
   .hint {
     font-size: 11px;
     padding: 12px 5px;
+  }
+
+  .auth-card {
+    padding: 30px 22px;
   }
 }
